@@ -1,0 +1,77 @@
+:root {
+  --line: rgba(0, 0, 0, 0.06);
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --text: #1f2328;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+/* // Double slash is not valid CSS comment, it is scss. */
+.app {
+  /* Becomes the parent for absolutely positioned children */
+  position: relative;
+  height: calc(100vh - 49px);
+  display: grid;
+  /* First column takes remaining space 1fr */
+  /* Second column is fixed at 320px */
+  grid-template-columns: 1fr 320px;
+}
+
+/* ... */
+/* draw one 1px vertical line + one 1px horizontal line, then repeat them in a 24×24 tile */
+.grid {
+  /* Possible because parent .app is relative */
+  position: absolute;
+  /* Stretches to fill the .app parent. */
+  /* shorthand for top:0; right:0; bottom:0; left:0; */
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.board {
+    position: relative;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    overflow: auto;
+}
+
+.inspector {
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+    padding: 12px;
+}
+
+.inspector__title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
