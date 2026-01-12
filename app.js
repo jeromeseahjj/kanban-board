@@ -2,10 +2,19 @@
 const boardEl = document.querySelector("#board");
 const debugEl = document.querySelector("#debug");
 const addColBtn = document.querySelector("#addColBtn");
+const resetBtn = document.querySelector("#resetBtn");
+
+resetBtn.addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload(); // Reloads current URL, basically refreshes the page.
+})
+
+// Localstorage
+const STORAGE_KEY = "vanilla-kanban:v1";
 
 console.log({ boardEl, debugEl, addColBtn });
 
-const state = {
+const state = loadState() ?? {
   columns: [
     { id: "col-todo", title: "Todo", cardIds: ["c1", "c2"] },
     { id: "col-doing", title: "Doing", cardIds: [] },
@@ -48,6 +57,7 @@ function render() {
       const newCard = createCard("New Task");
       state.cards[newCard.id] = newCard;
       col.cardIds.push(newCard.id); // Push into the column
+      persist();
       render(); // Re-render
     });
 
@@ -85,8 +95,10 @@ function render() {
     : "(select a card)";
 }
 
+// For Card selection
 boardEl.addEventListener("click", (e) => {
-  const cardEl = e.target.closest(".card");
+  // More to future proof things, in-case we add anything inside card element.
+  const cardEl = e.target.closest(".card"); // This is basically just, move to the closest .card element.
   // target is where the event originally happened. -> card
   // currentTarget is the element whose listener is running right now. -> board
   console.log("clicked:", e.target, "closest card:", cardEl, "currentTarget", e.currentTarget);
@@ -95,10 +107,25 @@ boardEl.addEventListener("click", (e) => {
 
   state.selectedCardId = cardEl.dataset.cardId;
   console.log("selectedCardId =", state.selectedCardId);
-
+  persist();
   render();
 });
 
 function createCard(title) {
   return { id: "c-" + crypto.randomUUID(), title };
+}
+
+function persist() {
+  const json = JSON.stringify(state);
+  localStorage.setItem(STORAGE_KEY, json);
+}
+
+function loadState() {
+  const json = localStorage.getItem(STORAGE_KEY);
+  if (!json) return null;
+  try {
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
 }
