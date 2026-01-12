@@ -5,9 +5,7 @@
   --text: #1f2328;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -25,44 +23,84 @@ body {
   background: var(--panel);
 }
 
-/* // Double slash is not valid CSS comment, it is scss. */
 .app {
-  /* Becomes the parent for absolutely positioned children */
-  position: relative;
-  height: calc(100vh - 49px);
+  position: relative;                 /* parent for .grid absolute overlay */
+  height: calc(100vh - 49px);         /* full screen minus topbar */
   display: grid;
-  /* First column takes remaining space 1fr */
-  /* Second column is fixed at 320px */
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 320px;   /* board + inspector */
 }
 
-/* ... */
-/* draw one 1px vertical line + one 1px horizontal line, then repeat them in a 24×24 tile */
 .grid {
-  /* Possible because parent .app is relative */
   position: absolute;
-  /* Stretches to fill the .app parent. */
-  /* shorthand for top:0; right:0; bottom:0; left:0; */
   inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
   background-size: 24px 24px;
   pointer-events: none;
 }
 
+/* This is #board */
 .board {
-    position: relative;
-    padding: 14px;
-    display: flex;
-    gap: 12px;
-    overflow: auto;
+  position: relative;
+  padding: 14px;
+  display: flex;          /* columns in a row */
+  gap: 12px;              /* spacing between columns */
+  overflow: auto;         /* scroll when too many columns */
 }
 
+/* Column container */
+.column {
+  width: 280px;
+  flex: 0 0 auto;         /* prevent shrinking in flex row */
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column; /* header on top, body below */
+}
+
+/* Column header row (title + add button) */
+.column__head {
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.column__title {
+  font-weight: 600;
+}
+
+/* Where cards live */
+.column__body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 40px;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;       /* later we'll change to grab when dragging */
+  user-select: none;
+}
+
+.card.is-selected {
+  outline: 2px solid rgba(0,0,0,0.25);
+}
+
+/* Right panel */
 .inspector {
-    border-left: 1px solid var(--line);
-    background: var(--panel);
-    padding: 12px;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  padding: 12px;
 }
 
 .inspector__title {
