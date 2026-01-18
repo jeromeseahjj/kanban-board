@@ -3,6 +3,8 @@ const boardEl = document.querySelector("#board");
 const debugEl = document.querySelector("#debug");
 const addColBtn = document.querySelector("#addColBtn");
 const resetBtn = document.querySelector("#resetBtn");
+let drag = null;
+let suppressNextClick = false;
 
 resetBtn.addEventListener("click", () => {
   localStorage.removeItem(STORAGE_KEY);
@@ -26,6 +28,7 @@ const state = loadState() ?? {
   },
 
   selectedCardId: null,
+
 };
 
 render();
@@ -39,19 +42,20 @@ function render() {
   for (const col of state.columns) {
     const columnEl = document.createElement("div");
     columnEl.className = "column";
-
+    
     // equivalent of data-col-id
     columnEl.dataset.colId = col.id;
-
+    
     const headEl = document.createElement("div");
     headEl.className = "column__head";
-
+    
     const titleEl = document.createElement("div");
     titleEl.className = "column__title";
     titleEl.textContent = col.title;
-
+        
     const addCardBtn = document.createElement("button");
-    addCardBtn.textContent = "+ Card";
+    // addCardBtn.textContent = "+ Card"
+
 
     addCardBtn.addEventListener("click", () => {
       const newCard = createCard("New Task");
@@ -69,7 +73,7 @@ function render() {
     for (const cardId of col.cardIds) {
       const card = state.cards[cardId];
       if (!card) continue;
-
+      
       const cardEl = document.createElement("div");
       cardEl.className = "card";
       cardEl.textContent = card.title;
@@ -97,6 +101,10 @@ function render() {
 
 // For Card selection
 boardEl.addEventListener("click", (e) => {
+  if (suppressNextClick) {
+    suppressNextClick = false;
+    return;
+  }
   // More to future proof things, in-case we add anything inside card element.
   const cardEl = e.target.closest(".card"); // This is basically just, move to the closest .card element.
   // target is where the event originally happened. -> card
@@ -109,6 +117,82 @@ boardEl.addEventListener("click", (e) => {
   console.log("selectedCardId =", state.selectedCardId);
   persist();
   render();
+});
+
+boardEl.addEventListener("pointerdown", (e) => {
+  const cardEl = e.target.closest(".card");
+  if (!cardEl) return;
+
+  // Only left click for mouse
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+
+  const colEl = cardEl.closest(".column");
+  const bodyEl = cardEl.closest(".column__body");
+  if (!colEl || !bodyEl) return;
+
+  const cardId = cardEl.dataset.cardId;
+  const fromColId = colEl.dataset.colId;
+
+  // gives the element’s box in viewport coordinates, which matches clientX/clientY
+  const rect = cardEl.getBoundingClientRect();
+
+  const placeholder = document.createElement("div");
+  placeholder.className = "placeholder";
+  placeholder.style.height = `${rect.height}px`;
+
+  // Insert where card currently is, and link card as a child node.
+  bodyEl.insertBefore(placeholder, cardEl);
+
+  cardEl.classList.add("drag-ghost");
+  cardEl.style.width = `${rect.width}px`;
+  document.body.append(cardEl);
+
+  const offsetX = e.clientX - rect.left;
+  const offsetY = e.clientY - rect.top;
+
+  positionGhost(cardEl, e.clientX - offsetX, e.clientY - offsetY);
+  cardEl.setPointerCapture(e.pointerId);
+  drag = {
+    cardId,
+    fromColId,
+    ghostEl: cardEl,
+    placeholderEl: placeholder,
+    pointerId: e.pointerId,
+    offsetX,
+    offsetY,
+    didMove: false,
+  };
+});
+
+boardEl.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  if (e.pointerId !== drag.pointerId) return;
+
+  drag.didMove = true;
+
+  const x = e.clientX - drag.offsetX;
+  const y = e.clientY - drag.offsetY;
+  positionGhost(drag.ghostEl, x, y);
+
+  const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+  const targetBody = elUnder?.closest?.(".column__body");
+  if (!targetBody) return;
+
+  movePlaceholder(targetBody, drag.placeholderEl, e.clientY);
+});
+
+boardEl.addEventListener("pointerup", (e) => {
+  if (!drag) return;
+  if (e.pointerId !== drag.pointerId) return;
+
+  finishDrag();
+});
+
+boardEl.addEventListener("pointercancel", (e) => {
+  if (!drag) return;
+  if (e.pointerId !== drag.pointerId) return;
+
+  finishDrag(true);
 });
 
 function createCard(title) {

@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Vanilla Kanban</title>
-        <link rel="stylesheet" href="./styles.css"/>
-    </head>
-    <body>
-        <header class="topbar">
-            <div class="title">Vanilla Kanban</div>
-            <button id="resetBtn">Reset</button>
-            <button id="addColBtn">+ Column</button>
-        </header>
-        <main class="app">
-            <div class="grid" aria-hidden="true"></div>
-            <section id="board" class="board" aria-label="Kanban Board"></section>
-            <aside class="inspector">
-                <div class="inspector__title">Inspector</div>
-                <pre id="debug" class="mono">(select a card)</pre>
-            </aside>
-        </main>
-        <script type="module" src="./app.js"></script>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vanilla Kanban</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title">Vanilla Kanban</div>
+      <button id="resetBtn">Reset</button>
+      <button id="addColBtn">+ Column</button>
+    </header>
+    <main class="app">
+      <div class="grid" aria-hidden="true"></div>
+      <section id="board" class="board" aria-label="Kanban Board"></section>
+      <aside class="inspector">
+        <div class="inspector__title">Inspector</div>
+        <pre id="debug" class="mono">(select a card)</pre>
+      </aside>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>
